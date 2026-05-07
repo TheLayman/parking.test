@@ -145,8 +145,12 @@ extern "C"
 
 /*!
  * Second reception window channel frequency definition.
+ *
+ * Private-deployment override: moved off the IN865 spec default (866.550 MHz)
+ * to a clean slot that doesn't overlap our 8 uplink channels or the 3
+ * spec-default uplink channels in use by a colocated deployment.
  */
-#define IN865_RX_WND_2_FREQ                         866550000
+#define IN865_RX_WND_2_FREQ                         866000000
 
 /*!
  * Second reception window channel datarate definition.
@@ -220,22 +224,25 @@ extern "C"
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define IN865_LC1                                   { 865062500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-//#define IN865_LC1                                   { 865562500, 0, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+// Private-deployment override: LC1/LC2/LC3 moved off the IN865 spec defaults
+// (865.0625 / 865.4025 / 865.985) to avoid a colocated deployment using them.
+// Joins now happen on these private channels.
+#define IN865_LC1                                   { 865200000, 0, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+//#define IN865_LC1                                   { 865062500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define IN865_LC2                                   { 865402500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-//#define IN865_LC2                                   { 866062500, 0, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+#define IN865_LC2                                   { 865600000, 0, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+//#define IN865_LC2                                   { 865402500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define IN865_LC3                                   { 865985000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-//#define IN865_LC3                                   { 866402500, 0, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+#define IN865_LC3                                   { 865800000, 0, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+//#define IN865_LC3                                   { 865985000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
