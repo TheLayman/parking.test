@@ -92,53 +92,57 @@
 
     # Gateway channel configuration.
     #
-    # Note: this configuration is only used in case the gateway is using the
-    # ChirpStack Concentratord daemon. In any other case, this configuration 
-    # is ignored.
+    # Private-deployment plan: 8 channels in 865.2-866.9 MHz, all avoiding the
+    # 3 IN865 spec defaults (865.0625 / 865.4025 / 865.985) which are in use
+    # by a colocated deployment.
+    #
+    # All 8 channels are baked into the device firmware as defaults
+    # (RegionIN865.h LC1-LC8), so no CFList or NewChannelReq is needed.
+    # Indices 0-7 here MUST match firmware RegionIN865.h LC1-LC8 in order.
     [[regions.gateway.channels]]
-      frequency=865062500
+      frequency=865200000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
 
     [[regions.gateway.channels]]
-      frequency=865402500
+      frequency=865600000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
 
     [[regions.gateway.channels]]
-      frequency=865985000
+      frequency=865800000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
 
     [[regions.gateway.channels]]
-      frequency=865562500
+      frequency=866100000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
 
     [[regions.gateway.channels]]
-      frequency=866061500
+      frequency=866300000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
 
     [[regions.gateway.channels]]
-      frequency=866402500
+      frequency=866500000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
 
     [[regions.gateway.channels]]
-      frequency=866762500
+      frequency=866700000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
 
     [[regions.gateway.channels]]
-      frequency=866985000
+      frequency=866900000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10, 11, 12]
@@ -173,7 +177,12 @@
     rx2_dr=2
 
     # RX2 frequency (Hz)
-    rx2_frequency=866550000
+    #
+    # Private-deployment override: moved off the IN865 spec default
+    # (866.550 MHz) to a slot that doesn't overlap any of our 8 uplink
+    # channels or the 3 spec-default channels in use by a colocated
+    # deployment. Must match firmware IN865_RX_WND_2_FREQ.
+    rx2_frequency=866000000
 
     # Prefer RX2 on RX1 data-rate less than.
     #
@@ -210,48 +219,16 @@
 
     # Enabled uplink channels.
     #
-    # Channels 0, 1, 2 are the LoRaWAN-mandated IN865 join channels
-    # (865.0625 / 865.4025 / 865.9850 MHz) — devices join on these by spec
-    # regardless of this list. Excluding them here causes the network-server
-    # to issue a LinkADRReq after join, disabling them for data uplinks so
-    # post-join traffic is restricted to the extra channels (indices 3-7).
-    # enabled_uplink_channels=[5, 6, 7]
+    # All 8 channels enabled. The device firmware (RegionIN865.h) ships all 8
+    # as defaults (LC1-LC8) so they're active from boot — no CFList or
+    # NewChannelReq is needed to bring channels 3-7 online on the device.
+    enabled_uplink_channels=[0, 1, 2, 3, 4, 5, 6, 7]
 
 
-    # Extra uplink channels (beyond the 3 default IN865 channels).
-    # These channels are communicated to devices by the network-server via
-    # CFList (in JoinAccept) and NewChannelReq MAC commands.
-    #
-    # IMPORTANT: these MUST match the gateway hardware's listening plan
-    # (defined in the gateway's global_conf.json). Mismatch = uplinks on
-    # extras are physically not received by the gateway.
-    #
-    # The 5 frequencies below mirror the standard fleet global_conf.json:
-    #   chan_multiSF_3..7 = radio_0/1 center + IF offset
-    [[regions.network.extra_channels]]
-      frequency=865562500
-      min_dr=2
-      max_dr=5
-
-    [[regions.network.extra_channels]]
-      frequency=866061500
-      min_dr=2
-      max_dr=5
-
-    [[regions.network.extra_channels]]
-      frequency=866402500
-      min_dr=2
-      max_dr=5
-
-    [[regions.network.extra_channels]]
-      frequency=866762500
-      min_dr=2
-      max_dr=5
-
-    [[regions.network.extra_channels]]
-      frequency=866985000
-      min_dr=2
-      max_dr=5
+    # No extra_channels: all 8 channels are firmware defaults on the device,
+    # so we don't need ChirpStack to push channels 3-7 via CFList in
+    # JoinAccept. The gateway's listening plan (global_conf.json) and the
+    # device's firmware are the source of truth.
 
 
     # Rejoin-request configuration (LoRaWAN 1.1)
