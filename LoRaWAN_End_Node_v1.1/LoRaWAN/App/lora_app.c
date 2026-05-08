@@ -110,7 +110,7 @@ typedef enum TxEventType_e
 #define TEMPERATURE_HIGH_THRESHOLD	60.0f   /* degC — send alert when temperature exceeds this */
 #define TEMPERATURE_HIGH_STATUS		(uint8_t)(0x0A)
 #define RETRANSMIT_DELAY_MS			15000
-#define JITTER_MS					5000		/* jitter in milliseconds */
+#define JITTER_MS					1000		/* jitter in milliseconds */
 #define JITTER_RETRANSMISSION		2000		/* jitter for retransmission */
 #define THREE_HOUR_TIME				3 * 60 * 60000
 #define MAX_JOIN_ATTEMPTS			300
@@ -347,6 +347,7 @@ bool isJoined = false;
 int join_attempts = 0;
 float THRESHOLD = 4.5f;
 bool parked = false;
+uint8_t count = 0;
 
 /* State machine for confirmation reads */
 static DetectState_t detect_state = DETECT_IDLE;
@@ -968,7 +969,7 @@ static void SendTxData(void)
         {
           uint32_t k = 0;
           AppData.Port = LORAWAN_USER_APP_PORT;
-          AppData.Buffer[k++] = parked;
+          AppData.Buffer[k++] = count;
           AppData.BufferSize = k;
           status = LmHandlerSend(&AppData, LmHandlerParams.IsTxConfirmed, false);
           if (LORAMAC_HANDLER_SUCCESS == status)
@@ -1010,11 +1011,14 @@ static void SendTxData(void)
     }
     if (LmHandlerIsBusy() == false)
     {
+      count++;
       uint32_t l = 0;
       AppData.Port = LORAWAN_USER_APP_PORT;
-      AppData.Buffer[l++] = parked;
+      //AppData.Buffer[l++] = parked;
+      AppData.Buffer[l++] =count;
       AppData.BufferSize = l;
       status = LmHandlerSend(&AppData, LmHandlerParams.IsTxConfirmed, false);
+
     }
   }
 }

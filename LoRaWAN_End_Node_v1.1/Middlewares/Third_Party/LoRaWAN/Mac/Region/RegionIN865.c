@@ -354,10 +354,14 @@ void RegionIN865InitDefaults( InitDefaultsParams_t* params )
             RegionNvmGroup2->Channels[0] = ( ChannelParams_t ) IN865_LC1;
             RegionNvmGroup2->Channels[1] = ( ChannelParams_t ) IN865_LC2;
             RegionNvmGroup2->Channels[2] = ( ChannelParams_t ) IN865_LC3;
+            ///
+
+            RegionNvmGroup2->Channels[3] = ( ChannelParams_t ) IN865_LC4;
+            RegionNvmGroup2->Channels[4] = ( ChannelParams_t ) IN865_LC5;
 
             // Initialize the channels default mask
-            RegionNvmGroup2->ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
-
+            RegionNvmGroup2->ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 ) + LC( 4 ) + LC( 5 );
+            ///
             // Default ChannelsMask
             RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
             break;
@@ -368,6 +372,10 @@ void RegionIN865InitDefaults( InitDefaultsParams_t* params )
             RegionNvmGroup2->Channels[0].Rx1Frequency = 0;
             RegionNvmGroup2->Channels[1].Rx1Frequency = 0;
             RegionNvmGroup2->Channels[2].Rx1Frequency = 0;
+            //
+            RegionNvmGroup2->Channels[3].Rx1Frequency = 0;
+            RegionNvmGroup2->Channels[4].Rx1Frequency = 0;
+            //
             // Default ChannelsMask
             RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
             break;
@@ -678,7 +686,8 @@ uint8_t RegionIN865LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         status = 0x07;
 
         // Setup temporary channels mask
-        chMask = linkAdrParams.ChMask;
+        //chMask = linkAdrParams.ChMask;
+        chMask = RegionNvmGroup2->ChannelsDefaultMask[0];
 
         // Verify channels mask
         if( ( linkAdrParams.ChMaskCtrl == 0 ) && ( chMask == 0 ) )
@@ -753,6 +762,7 @@ uint8_t RegionIN865LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         memset1( ( uint8_t* ) RegionNvmGroup2->ChannelsMask, 0, sizeof( RegionNvmGroup2->ChannelsMask ) );
         // Update the channels mask
         RegionNvmGroup2->ChannelsMask[0] = chMask;
+        //RegionNvmGroup2->ChannelsMask[0] = RegionNvmGroup2->ChannelsDefaultMask[0];
     }
 
     // Update status variables
@@ -799,7 +809,9 @@ int8_t RegionIN865NewChannelReq( NewChannelReqParams_t* newChannelReq )
     uint8_t status = 0x03;
     ChannelAddParams_t channelAdd;
     ChannelRemoveParams_t channelRemove;
-
+    //
+    return status;
+    //
     if( newChannelReq->NewChannel->Frequency == 0 )
     {
         channelRemove.ChannelId = newChannelReq->ChannelId;
@@ -907,7 +919,7 @@ LoRaMacStatus_t RegionIN865NextChannel( NextChanParams_t* nextChanParams, uint8_
 
     if( RegionCommonCountChannels( RegionNvmGroup2->ChannelsMask, 0, 1 ) == 0 )
     { // Reactivate default channels
-        RegionNvmGroup2->ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
+        RegionNvmGroup2->ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 ) + LC( 4 ) + LC( 5 );
     }
 
     // Search how many channels are enabled
