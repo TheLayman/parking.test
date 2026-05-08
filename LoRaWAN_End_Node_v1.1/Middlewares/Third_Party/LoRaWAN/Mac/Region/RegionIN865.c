@@ -687,8 +687,14 @@ uint8_t RegionIN865LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         // Revert status, as we only check the last ADR request for the channel mask KO
         status = 0x07;
 
-        // Setup temporary channels mask
-        chMask = linkAdrParams.ChMask;
+        // Setup temporary channels mask.
+        // Private-deployment override: ignore the NS-sent ChMask and force
+        // the firmware-default mask. Reason: ChirpStack's IN865 reserves
+        // channel indices 0-2 for spec defaults (which we don't use), so
+        // its ChMask bits don't align with our firmware channel layout.
+        // Bypassing keeps the device on its 8 baked-in channels regardless.
+        //chMask = linkAdrParams.ChMask;
+        chMask = RegionNvmGroup2->ChannelsDefaultMask[0];
 
         // Verify channels mask
         if( ( linkAdrParams.ChMaskCtrl == 0 ) && ( chMask == 0 ) )
@@ -809,6 +815,13 @@ int8_t RegionIN865NewChannelReq( NewChannelReqParams_t* newChannelReq )
     uint8_t status = 0x03;
     ChannelAddParams_t channelAdd;
     ChannelRemoveParams_t channelRemove;
+
+    // Private-deployment override: device ships all 8 channels as firmware
+    // defaults and does not accept NS-driven channel adds/removes. This
+    // matters because ChirpStack tries to push extras 6-8 (which exceed
+    // CFList's 5-slot capacity) via NewChannelReq after join — accepting
+    // them would create duplicate channel entries on the device.
+    return status;
 
     if( newChannelReq->NewChannel->Frequency == 0 )
     {

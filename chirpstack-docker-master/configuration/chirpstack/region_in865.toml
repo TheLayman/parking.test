@@ -219,16 +219,65 @@
 
     # Enabled uplink channels.
     #
-    # All 8 channels enabled. The device firmware (RegionIN865.h) ships all 8
-    # as defaults (LC1-LC8) so they're active from boot — no CFList or
-    # NewChannelReq is needed to bring channels 3-7 online on the device.
-    enabled_uplink_channels=[0, 1, 2, 3, 4, 5, 6, 7]
+    # ChirpStack reserves IN865 channel indices 0-2 for the spec defaults
+    # (865.0625 / 865.4025 / 865.985 MHz) — these slots can't be reassigned.
+    # We don't use those frequencies (colocated deployment), so we skip
+    # indices 0-2 and enable our 8 private channels at NS indices 3-10
+    # (defined in extra_channels below).
+    enabled_uplink_channels=[3, 4, 5, 6, 7, 8, 9, 10]
 
 
-    # No extra_channels: all 8 channels are firmware defaults on the device,
-    # so we don't need ChirpStack to push channels 3-7 via CFList in
-    # JoinAccept. The gateway's listening plan (global_conf.json) and the
-    # device's firmware are the source of truth.
+    # Extra uplink channels — our 8 private frequencies.
+    #
+    # NS index assignment is positional: first extra = idx 3, second = idx 4,
+    # etc. So this block places our 8 channels at NS indices 3-10.
+    #
+    # Order matters because CFList (in JoinAccept) carries only the first 5
+    # entries. The first 5 here intentionally match firmware LC4-LC8 (ch3-7
+    # on the device), so when the device receives CFList it overwrites
+    # ch3-7 with the same frequencies they already have — i.e., a no-op.
+    # The last 3 entries (LC1-LC3 = device ch0-2) are pushed via
+    # NewChannelReq, which the firmware rejects (RegionIN865.c) — the
+    # device keeps using its baked-in 8 channels regardless.
+    [[regions.network.extra_channels]]
+      frequency=866100000
+      min_dr=2
+      max_dr=5
+
+    [[regions.network.extra_channels]]
+      frequency=866300000
+      min_dr=2
+      max_dr=5
+
+    [[regions.network.extra_channels]]
+      frequency=866500000
+      min_dr=2
+      max_dr=5
+
+    [[regions.network.extra_channels]]
+      frequency=866700000
+      min_dr=2
+      max_dr=5
+
+    [[regions.network.extra_channels]]
+      frequency=866900000
+      min_dr=2
+      max_dr=5
+
+    [[regions.network.extra_channels]]
+      frequency=865200000
+      min_dr=2
+      max_dr=5
+
+    [[regions.network.extra_channels]]
+      frequency=865600000
+      min_dr=2
+      max_dr=5
+
+    [[regions.network.extra_channels]]
+      frequency=865800000
+      min_dr=2
+      max_dr=5
 
 
     # Rejoin-request configuration (LoRaWAN 1.1)
